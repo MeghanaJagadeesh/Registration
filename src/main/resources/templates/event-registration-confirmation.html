@@ -1,0 +1,403 @@
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"-->
+<!--        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<!--<html xmlns="http://www.w3.org/1999/xhtml"-->
+<!--      xmlns:th="http://www.thymeleaf.org">-->
+
+<!--<head>-->
+<!--    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>-->
+<!--    <title>Registration Confirmed</title>-->
+
+<!--    <style type="text/css">-->
+<!--        @media only screen and (max-width: 600px) {-->
+<!--            .container { width: 100% !important; border-radius: 8px !important; }-->
+<!--            .content { padding: 25px 20px !important; }-->
+<!--            .details-grid { display: block !important; }-->
+<!--            .detail-col { display: block !important; width: 100% !important; margin-bottom: 15px !important; }-->
+<!--            .support-row { display: block !important; }-->
+<!--            .support-col { display: block !important; width: 100% !important; margin-bottom: 10px !important; }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+
+<!--<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">-->
+<!--<center>-->
+<!--    <table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;padding:25px 0;">-->
+<!--        <tr>-->
+<!--            <td align="center">-->
+
+<!--                &lt;!&ndash; MAIN CONTAINER &ndash;&gt;-->
+<!--                <table class="container" width="580" cellspacing="0" cellpadding="0"-->
+<!--                       style="background:#ffffff;border-radius:8px;overflow:hidden;-->
+<!--                              box-shadow:0 2px 8px rgba(0,0,0,0.08);">-->
+
+<!--                    &lt;!&ndash; HEADER &ndash;&gt;-->
+<!--                    <tr>-->
+<!--                        <td align="center" style="background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);padding:35px 30px;">-->
+<!--                            &lt;!&ndash; LOGO &ndash;&gt;-->
+<!--                            <img th:src="@{${eventLogo != null ? eventLogo : 'https://quantumshare.quantumparadigm.in/vedio/Planotech_Logo_Black.png'}}"-->
+<!--                                 alt="Event Logo"-->
+<!--                                 width="60"-->
+<!--                                 style="display:block;margin:0 auto 15px auto;filter:brightness(0) invert(1);" />-->
+
+<!--                            &lt;!&ndash; BADGE &ndash;&gt;-->
+<!--                            <div style="background:rgba(255,255,255,0.15);padding:4px 14px;border-radius:12px;-->
+<!--                                        font-size:11px;font-weight:500;letter-spacing:0.5px;color:#ffffff;-->
+<!--                                        margin-bottom:15px;display:inline-block;">-->
+<!--                                REGISTRATION CONFIRMED-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; TITLE &ndash;&gt;-->
+<!--                            <h1 style="margin:0;font-size:22px;font-weight:600;color:#ffffff;line-height:1.3;">-->
+<!--                                You're Registered for <span th:text="${eventName}"></span>-->
+<!--                            </h1>-->
+
+<!--                            &lt;!&ndash; SUBTITLE &ndash;&gt;-->
+<!--                            <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.9);">-->
+<!--                                Confirmation for <strong th:text="${userName}"></strong>-->
+<!--                            </p>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+
+<!--                    &lt;!&ndash; CONTENT &ndash;&gt;-->
+<!--                    <tr>-->
+<!--                        <td class="content" style="padding:30px;">-->
+
+<!--                            &lt;!&ndash; GREETING &ndash;&gt;-->
+<!--                            <p style="font-size:14px;color:#4b5563;line-height:1.5;margin:0 0 25px 0;">-->
+<!--                                Thank you for registering. Your registration has been confirmed successfully.-->
+<!--                            </p>-->
+
+<!--                            &lt;!&ndash; DETAILS SECTION &ndash;&gt;-->
+<!--                            <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:25px;">-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <div style="font-size:13px;color:#6b7280;font-weight:500;margin-bottom:15px;">-->
+<!--                                            REGISTRATION DETAILS-->
+<!--                                        </div>-->
+
+<!--                                        &lt;!&ndash; DETAILS GRID &ndash;&gt;-->
+<!--                                        <table class="details-grid" width="100%" cellspacing="0" cellpadding="0">-->
+<!--                                            <tr>-->
+<!--                                                <td class="detail-col" width="48%" valign="top" style="padding-right:10px;">-->
+<!--                                                    <div style="margin-bottom:15px;">-->
+<!--                                                        <div style="font-size:11px;color:#9ca3af;margin-bottom:3px;">-->
+<!--                                                            ATTENDEE-->
+<!--                                                        </div>-->
+<!--                                                        <div style="font-size:14px;color:#111827;font-weight:500;"-->
+<!--                                                             th:text="${userName}"></div>-->
+<!--                                                        <div style="font-size:13px;color:#6b7280;margin-top:2px;"-->
+<!--                                                             th:text="${userEmail}"></div>-->
+<!--                                                    </div>-->
+<!--                                                </td>-->
+
+<!--                                                <td class="detail-col" width="52%" valign="top">-->
+<!--                                                    <div style="margin-bottom:15px;">-->
+<!--                                                        <div style="font-size:11px;color:#9ca3af;margin-bottom:3px;">-->
+<!--                                                            EVENT DATE-->
+<!--                                                        </div>-->
+<!--                                                        <div style="font-size:14px;color:#111827;font-weight:500;"-->
+<!--                                                             th:text="${eventStartDate}"></div>-->
+<!--                                                    </div>-->
+
+<!--                                                    <div>-->
+<!--                                                        <div style="font-size:11px;color:#9ca3af;margin-bottom:3px;">-->
+<!--                                                            VENUE-->
+<!--                                                        </div>-->
+<!--                                                        <div style="font-size:14px;color:#111827;font-weight:500;"-->
+<!--                                                             th:text="${eventLocation}"></div>-->
+<!--                                                    </div>-->
+<!--                                                </td>-->
+<!--                                            </tr>-->
+<!--                                        </table>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+
+<!--                            &lt;!&ndash; EVENT DESCRIPTION WITH READ MORE &ndash;&gt;-->
+<!--                            <table width="100%" cellspacing="0" cellpadding="0"-->
+<!--                                   th:if="${eventDescription != null}"-->
+<!--                                   style="margin-bottom:25px;">-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <div style="font-size:13px;color:#6b7280;font-weight:500;margin-bottom:10px;">-->
+<!--                                            EVENT OVERVIEW-->
+<!--                                        </div>-->
+<!--                                        <div style="font-size:13px;color:#4b5563;line-height:1.5;max-height:78px;overflow:hidden;"-->
+<!--                                             th:text="${eventDescription}">-->
+<!--                                        </div>-->
+<!--                                        <div style="font-size:12px;color:#3b82f6;margin-top:5px;display:none;" id="readMore">-->
+<!--                                            <a href="#" style="color:#3b82f6;text-decoration:none;">Read more</a>-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+
+<!--                            &lt;!&ndash; QR CODE SECTION &ndash;&gt;-->
+<!--                            <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:25px;">-->
+<!--                                <tr>-->
+<!--                                    <td align="center">-->
+<!--                                        <div style="font-size:13px;color:#6b7280;font-weight:500;margin-bottom:10px;">-->
+<!--                                            CHECK-IN QR CODE-->
+<!--                                        </div>-->
+
+<!--                                        <div style="margin-bottom:15px;font-size:12px;color:#6b7280;">-->
+<!--                                            Present at event entrance for quick check-in-->
+<!--                                        </div>-->
+
+<!--                                        &lt;!&ndash; QR CODE &ndash;&gt;-->
+<!--                                        <div style="margin-bottom:15px;">-->
+<!--                                            <img th:src="@{${qrUrl}}"-->
+<!--                                                 width="140"-->
+<!--                                                 height="140"-->
+<!--                                                 alt="QR Code"-->
+<!--                                                 style="display:block;margin:0 auto;" />-->
+<!--                                        </div>-->
+
+<!--                                        &lt;!&ndash; REGISTRATION CODE &ndash;&gt;-->
+<!--                                        <div style="font-size:11px;color:#6b7280;margin-bottom:5px;">-->
+<!--                                            REGISTRATION CODE-->
+<!--                                        </div>-->
+<!--                                        <div style="font-family:'SF Mono', monospace;font-size:13px;-->
+<!--                                                    font-weight:500;color:#111827;background:#f9fafb;-->
+<!--                                                    padding:6px 12px;border-radius:4px;display:inline-block;"-->
+<!--                                             th:text="${badgeCode}">-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+
+<!--                            &lt;!&ndash; SUPPORT SECTION &ndash;&gt;-->
+<!--                            <table width="100%" cellspacing="0" cellpadding="0"-->
+<!--                                   th:if="${supportEmail != null || supportPhone != null || eventWebsite != null}"-->
+<!--                                   style="margin-bottom:20px;border-top:1px solid #f3f4f6;padding-top:20px;">-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <div style="font-size:13px;color:#6b7280;font-weight:500;margin-bottom:12px;">-->
+<!--                                            SUPPORT-->
+<!--                                        </div>-->
+
+<!--                                        <table class="support-row" width="100%" cellspacing="0" cellpadding="0">-->
+<!--                                            <tr>-->
+<!--                                                <td class="support-col" width="33%" valign="top" style="padding-right:10px;">-->
+<!--                                                    <div th:if="${supportPhone != null}" style="margin-bottom:8px;">-->
+<!--                                                        <div style="font-size:11px;color:#9ca3af;margin-bottom:2px;">-->
+<!--                                                            Phone-->
+<!--                                                        </div>-->
+<!--                                                        <div style="font-size:13px;color:#111827;font-weight:500;"-->
+<!--                                                             th:text="${supportPhone}"></div>-->
+<!--                                                    </div>-->
+<!--                                                </td>-->
+
+<!--                                                <td class="support-col" width="34%" valign="top" style="padding-right:10px;">-->
+<!--                                                    <div th:if="${supportEmail != null}" style="margin-bottom:8px;">-->
+<!--                                                        <div style="font-size:11px;color:#9ca3af;margin-bottom:2px;">-->
+<!--                                                            Email-->
+<!--                                                        </div>-->
+<!--                                                        <a th:href="'mailto:' + ${supportEmail}"-->
+<!--                                                           th:text="${supportEmail}"-->
+<!--                                                           style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;">-->
+<!--                                                        </a>-->
+<!--                                                    </div>-->
+<!--                                                </td>-->
+
+<!--                                                <td class="support-col" width="33%" valign="top">-->
+<!--                                                    <div th:if="${eventWebsite != null}" style="margin-bottom:8px;">-->
+<!--                                                        <div style="font-size:11px;color:#9ca3af;margin-bottom:2px;">-->
+<!--                                                            Website-->
+<!--                                                        </div>-->
+<!--                                                        <a th:href="@{${eventWebsite}}"-->
+<!--                                                           style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;">-->
+<!--                                                            Visit Event Site-->
+<!--                                                        </a>-->
+<!--                                                    </div>-->
+<!--                                                </td>-->
+<!--                                            </tr>-->
+<!--                                        </table>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+
+<!--                        </td>-->
+<!--                    </tr>-->
+
+<!--                    &lt;!&ndash; FOOTER &ndash;&gt;-->
+<!--                    <tr>-->
+<!--                        <td style="padding:25px 30px;background:#f9fafb;border-top:1px solid #f3f4f6;">-->
+<!--                            <table width="100%" cellspacing="0" cellpadding="0">-->
+<!--                                <tr>-->
+<!--                                    <td align="center">-->
+<!--                                        <img src="https://quantumshare.quantumparadigm.in/vedio/Planotech_Logo_Black.png"-->
+<!--                                             alt="Planotech"-->
+<!--                                             width="70"-->
+<!--                                             style="display:block;margin:0 auto 12px auto;opacity:0.7;" />-->
+
+<!--                                        <p style="margin:0;font-size:11px;color:#6b7280;line-height:1.4;">-->
+<!--                                            This confirms your registration for <strong style="color:#111827;" th:text="${eventName}"></strong>.-->
+<!--                                            Please save this email for reference.-->
+<!--                                        </p>-->
+
+<!--                                        <p style="margin:8px 0 0 0;font-size:10px;color:#9ca3af;">-->
+<!--                                            © 2026 Planotech Event & Marketing Pvt Ltd, Bangalore-->
+<!--                                        </p>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+
+<!--                </table>-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--    </table>-->
+<!--</center>-->
+
+<!--&lt;!&ndash;<script type="text/javascript">&ndash;&gt;-->
+<!--&lt;!&ndash;    // Simple read more functionality for long descriptions&ndash;&gt;-->
+<!--&lt;!&ndash;    window.addEventListener('DOMContentLoaded', function() {&ndash;&gt;-->
+<!--&lt;!&ndash;        var descriptionDiv = document.querySelector('div[th\\:text*="eventDescription"]');&ndash;&gt;-->
+<!--&lt;!&ndash;        if (descriptionDiv && descriptionDiv.scrollHeight > descriptionDiv.clientHeight) {&ndash;&gt;-->
+<!--&lt;!&ndash;            var readMoreDiv = document.getElementById('readMore');&ndash;&gt;-->
+<!--&lt;!&ndash;            if (readMoreDiv) {&ndash;&gt;-->
+<!--&lt;!&ndash;                readMoreDiv.style.display = 'block';&ndash;&gt;-->
+<!--&lt;!&ndash;                readMoreDiv.querySelector('a').addEventListener('click', function(e) {&ndash;&gt;-->
+<!--&lt;!&ndash;                    e.preventDefault();&ndash;&gt;-->
+<!--&lt;!&ndash;                    descriptionDiv.style.maxHeight = 'none';&ndash;&gt;-->
+<!--&lt;!&ndash;                    readMoreDiv.style.display = 'none';&ndash;&gt;-->
+<!--&lt;!&ndash;                });&ndash;&gt;-->
+<!--&lt;!&ndash;            }&ndash;&gt;-->
+<!--&lt;!&ndash;        }&ndash;&gt;-->
+<!--&lt;!&ndash;    });&ndash;&gt;-->
+<!--&lt;!&ndash;</script>&ndash;&gt;-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Registration Confirmed</title>
+    <style type="text/css">
+        body { margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #ffffff; }
+        .container { width: 100%; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; }
+
+        /* Interactive Expand Logic */
+        #read-more-check { display: none; }
+        .description-box { max-height: 75px; overflow: hidden; transition: max-height 0.4s ease; position: relative; }
+        .read-more-label { color: #111827; font-size: 13px; font-weight: bold; text-decoration: underline; cursor: pointer; display: block; margin-top: 5px; }
+        #read-more-check:checked ~ .description-box { max-height: 2000px; }
+        #read-more-check:checked ~ .read-more-label { display: none; }
+
+        .detail-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; margin-bottom: 4px; font-weight: 700; }
+        .detail-value { font-size: 15px; color: #111827; font-weight: 500; }
+        .disclaimer { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+<center class="wrapper">
+    <table class="container" cellspacing="0" cellpadding="0">
+        <tr>
+            <td style="padding: 40px 30px 20px 30px; text-align: center;">
+                <img th:src="${eventLogo}" alt="Event Logo" width="140" style="display: block; margin: 0 auto;">
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 0 40px 30px 40px; text-align: center;">
+                <h1 style="font-size: 22px; font-weight: 600; color: #111827; margin: 0 0 16px 0;">Registration Confirmed</h1>
+                <p style="font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 16px 0;">
+                    Dear <strong th:text="${userName}">Attendee Name</strong>,
+                </p>
+                <p style="font-size: 15px; line-height: 1.6; color: #374151;">Your registration for <strong th:text="${eventName}">Event</strong> is successful. We look forward to seeing you.</p>
+            </td>
+        </tr>
+
+        <tr th:if="${eventDescription != null}">
+            <td style="padding: 0 40px 30px 40px;">
+                <input type="checkbox" id="read-more-check">
+                <div class="description-box">
+                    <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #374151;" th:text="${eventDescription}">
+                        Event description goes here...
+                    </p>
+                </div>
+                <label for="read-more-check" class="read-more-label">Read More ▼</label>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 0 40px 30px 40px;">
+                <table width="100%" cellspacing="0" cellpadding="0" style="border-top: 1px solid #f3f4f6; padding-top: 30px;">
+                    <tr>
+                        <td width="50%" align="left" style="vertical-align: top;">
+                            <div class="detail-label">Attendee</div>
+                            <div class="detail-value" th:text="${userName}">Name</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 2px;" th:text="${userEmail}">Email</div>
+                        </td>
+                        <td width="50%" align="right" style="vertical-align: top;">
+                            <div class="detail-label">Location & Venue</div>
+                            <div class="detail-value" th:text="${eventLocation}">Venue, City</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 2px;" th:text="${eventStartDate}">Date</div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 0 40px 30px 40px; text-align: center;">
+                <div style="background-color: #fafafa; padding: 30px; border-radius: 12px; border: 1px solid #f0f0f0;">
+                    <img th:src="${qrUrl}" alt="Entry QR" width="140" style="display: block; margin: 0 auto 15px auto;">
+                    <div class="detail-label">Entry Badge Code</div>
+                    <div style="font-size: 20px; font-weight: 700; color: #111827; letter-spacing: 3px;" th:text="${badgeCode}">CODE123</div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 0 40px 30px 40px; text-align: center;">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">For support or inquiries:</p>
+                <div style="font-size: 14px;">
+                    <a th:if="${supportEmail != null}" th:href="'mailto:' + ${supportEmail}" style="color: #111827; text-decoration: none; font-weight: 500;" th:text="${supportEmail}">support@event.com</a>
+
+                    <span th:if="${supportEmail != null and supportPhone != null}" style="margin: 0 8px; color: #d1d5db;">•</span>
+
+                    <span th:if="${supportPhone != null}" style="color: #111827; font-weight: 500;" th:text="${supportPhone}">+91 0000000000</span>
+                </div>
+                <div style="margin-top: 10px;" th:if="${eventWebsite != null}">
+                    <a th:href="${eventWebsite}" style="color: #6b7280; font-size: 13px; text-decoration: underline;" th:text="${eventWebsite}">www.eventwebsite.com</a>
+                </div>
+
+                <p class="disclaimer">Please do not reply to this email. This is an automated notification.</p>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:30px 30px; background:#f9fafb; border-top:1px solid #f3f4f6; text-align: center;">
+                <p style="margin:0 0 20px 0; font-size:11px; color:#6b7280; line-height:1.4;">
+                    This confirms your registration for <strong style="color:#111827;" th:text="${eventName}">Event Name</strong>. <br>
+                    Please save this email for your reference.
+                </p>
+
+                <table width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td align="center">
+                            <span style="font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 10px;">Powered by</span>
+                            <img src="https://quantumshare.quantumparadigm.in/vedio/Planotech_Logo_Black.png"
+                                 alt="Planotech"
+                                 width="80"
+                                 style="display:block; margin:0 auto 12px auto; opacity:0.8;" />
+
+                            <p style="margin:8px 0 0 0; font-size:10px; color:#9ca3af;">
+                                © 2026 Planotech Event & Marketing Pvt Ltd, Bangalore
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</center>
+</body>
+</html>
