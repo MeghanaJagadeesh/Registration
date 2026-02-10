@@ -6,14 +6,19 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
-public class RegistrationAdminResponse {
+public class BadgeListResponse {
 
-    private Long registrationId;
+    private Long entryId;
+
     private String name;
     private String email;
     private String phone;
+
+    private String badgeCode;
+    private String qrUrl;
+
     private LocalDateTime submittedAt;
-    private Boolean checkedIn;
+
     private Map<String, Object> responses;
 }
 

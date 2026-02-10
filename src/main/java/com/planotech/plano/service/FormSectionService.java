@@ -113,7 +113,7 @@ public class FormSectionService {
         return r;
     }
 
-    public Map<String, String> getMailVariables(Long formId) {
+    public Map<String, Object> getMailVariables(Long formId) {
 
         FormSection mailSection = sectionRepository
                 .findByForm_FormIdAndTypeAndActiveTrue(

@@ -16,9 +16,6 @@ public class AdminRegistrationController {
     @Autowired
     RegistrationService registrationService;
 
-    @Autowired
-    EventService eventService;
-
     @GetMapping("/events/{eventId}/registrations")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ORG_ADMIN','USER')")
     public ResponseEntity<?> getRegistrations(

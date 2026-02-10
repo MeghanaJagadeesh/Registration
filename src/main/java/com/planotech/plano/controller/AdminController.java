@@ -32,21 +32,21 @@ public class AdminController {
     public ResponseEntity<?> assignEventUser(@PathVariable Long eventId,
                                              @RequestBody CreateUserRequest userRequest,
                                              @AuthenticationPrincipal UserPrincipal userDetails) {
-       return adminService.assignEventUser(eventId, userRequest, userDetails.getUser());
+        return adminService.assignEventUser(eventId, userRequest, userDetails.getUser());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ORG_ADMIN','USER')")
     @PutMapping("/events/{eventId}")
     public ResponseEntity<?> modifyEvent(@PathVariable Long eventId,
-                                             @RequestBody CreateEventRequest eventRequest,
-                                             @AuthenticationPrincipal UserPrincipal userDetails) {
-       return adminService.modifyEvent(eventId, eventRequest, userDetails.getUser());
+                                         @RequestBody CreateEventRequest eventRequest,
+                                         @AuthenticationPrincipal UserPrincipal userDetails) {
+        return adminService.modifyEvent(eventId, eventRequest, userDetails.getUser());
     }
 
-//    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ORG_ADMIN','USER')")
-//    @GetMapping("/events/{eventId}/entry")
-//    public ResponseEntity<?> getEntry(@PathVariable Long eventId,
-//                                         @AuthenticationPrincipal UserPrincipal userDetails) {
-//        return adminService.getRegisteredUsers(eventId, userDetails.getUser());
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ORG_ADMIN','USER')")
+    @PostMapping("/events/{eventId}/user")
+    public ResponseEntity<?> getUser(@PathVariable Long eventId, @RequestParam String email, @AuthenticationPrincipal UserPrincipal userDetails) {
+        return adminService.getUser(eventId, email, userDetails.getUser());
+    }
 
 }

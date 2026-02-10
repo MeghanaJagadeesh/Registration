@@ -92,7 +92,9 @@ public class FileUploader {
     }
 
     private String generateUniqueFileName(String originalFilename) {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 6) + "_" + originalFilename;
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 6)
+                + "_" + originalFilename.toLowerCase()
+                .replaceAll("[^a-z0-9._-]", "_");
     }
 
     public ResponseEntity<Map<String, Object>> deleteFile(String fileUrl) {

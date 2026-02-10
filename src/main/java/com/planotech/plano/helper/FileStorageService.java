@@ -1,6 +1,7 @@
 package com.planotech.plano.helper;
 
 import com.jcraft.jsch.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -25,6 +26,7 @@ public class FileStorageService {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
+    @Async("backgroundExecutor")
     public CompletableFuture<String> handleFileUploadAsync(
             BufferedImage qrImage,
             String eventName,
@@ -116,7 +118,12 @@ public class FileStorageService {
     }
 
     private String generateUniqueFileName() {
-        return "qr_" + UUID.randomUUID().toString().substring(0, 8) + ".png";
+        return "qr_" +
+                UUID.randomUUID()
+                        .toString()
+                        .replaceAll("[^a-zA-Z0-9]", "")
+                        .substring(0, 8)
+                + ".png";
     }
 
     private boolean directoryExists(ChannelSftp sftpChannel, String directoryName) {

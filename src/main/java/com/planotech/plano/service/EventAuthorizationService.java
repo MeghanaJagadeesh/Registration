@@ -22,7 +22,6 @@ public class EventAuthorizationService {
     EventUserRepository eventUserRepository;
 
     public EventUser authorize(Long eventId, User user) {
-
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 

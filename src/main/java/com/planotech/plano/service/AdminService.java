@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -50,14 +51,12 @@ public class AdminService {
                 eventAuthorizationService.authorize(eventId, loggedInUser);
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event Not Found"));
 
-        System.out.println(eventId);
         EventRole actorRole = (actor == null)
                 ? EventRole.ROLE_EVENT_ADMIN
                 : actor.getRole();
         if (!canAssign(actorRole, request.getRole())) {
             throw new AccessDeniedException("You cannot assign this role");
         }
-        System.out.println("before creating");
         User user = userRepository
                 .findByEmail(request.getEmail())
                 .orElseGet(() -> createNewUser(request, loggedInUser));
@@ -125,8 +124,46 @@ public class AdminService {
         ));
     }
 
-//    public ResponseEntity<?> getRegisteredUsers(Long eventId, User user) {
-//        EventUser eventUser = eventAuthorizationService.authorize(eventId, user);
-//
-//    }
+    public ResponseEntity<?> getUser(Long eventId, String email, User loggedInUser) {
+
+        eventAuthorizationService.authorize(eventId, loggedInUser);
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.ok(Map.of(
+                    "exists", false,
+                    "assignedToEvent", false
+            ));
+        }
+
+        User user = userOpt.get();
+        Optional<EventUser> eventUserOpt =
+                eventUserRepository.findByUser_UserIdAndEvent_EventId(
+                        user.getUserId(), eventId
+                );
+
+        if (eventUserOpt.isPresent()) {
+            EventUser eventUser = eventUserOpt.get();
+
+            return ResponseEntity.ok(Map.of(
+                    "exists", true,
+                    "assignedToEvent", true,
+                    "user", Map.of(
+                            "userId", user.getUserId(),
+                            "email", user.getEmail(),
+                            "name", user.getName()
+                    ),
+                    "eventRole", eventUser.getRole()
+            ));
+        }
+        return ResponseEntity.ok(Map.of(
+                "exists", true,
+                "assignedToEvent", false,
+                "user", Map.of(
+                        "userId", user.getUserId(),
+                        "email", user.getEmail(),
+                        "name", user.getName()
+                )
+        ));
+    }
 }

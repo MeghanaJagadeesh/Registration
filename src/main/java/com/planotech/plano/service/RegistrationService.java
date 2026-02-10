@@ -1,10 +1,8 @@
 package com.planotech.plano.service;
 
-import com.planotech.plano.enums.EmailType;
-import com.planotech.plano.enums.FormSectionType;
+import com.planotech.plano.record.RegistrationCompletedEvent;
 import com.planotech.plano.enums.FormStatus;
 import com.planotech.plano.exception.ResourceNotFoundException;
-import com.planotech.plano.helper.EmailSender;
 import com.planotech.plano.model.*;
 import com.planotech.plano.repository.EventRepository;
 import com.planotech.plano.repository.FormSectionRepository;
@@ -14,6 +12,7 @@ import com.planotech.plano.request.RegistrationSubmitRequest;
 import com.planotech.plano.response.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,10 +48,7 @@ public class RegistrationService {
     EventAuthorizationService eventAuthorizationService;
 
     @Autowired
-    EmailSender emailSender;
-
-    @Autowired
-    RegistrationEmailVariableService registrationEmailVariableService;
+    ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ResponseEntity<?> register(String eventKey,
@@ -86,6 +82,7 @@ public class RegistrationService {
         entry.setName(request.getName());
         entry.setEmail(request.getEmail());
         entry.setPhone(request.getPhone());
+        entry.setSubmittedAt(LocalDateTime.now());
 
         try {
             entry.setResponsesJson(
@@ -95,18 +92,23 @@ public class RegistrationService {
             throw new RuntimeException("Invalid response data");
         }
 
-        entry.setSubmittedAt(LocalDateTime.now());
-
         entryRepository.save(entry);
 
-        User tempUser = new User();
-        tempUser.setEmail(entry.getEmail());
-        tempUser.setName(entry.getName());
+//        User tempUser = new User();
+//        tempUser.setEmail(entry.getEmail());
+//        tempUser.setName(entry.getName());
+//
+//        emailSender.sendVerificationEmail(
+//                tempUser,
+//                EmailType.EVENT_REGISTRATION_CONFIRMATION,
+//                registrationEmailVariableService.buildRegistrationEmailVariables(event, form, entry)
+//        );
 
-        emailSender.sendVerificationEmail(
-                tempUser,
-                EmailType.EVENT_REGISTRATION_CONFIRMATION,
-                registrationEmailVariableService.buildRegistrationEmailVariables(event, form, entry)
+        eventPublisher.publishEvent(
+                new RegistrationCompletedEvent(
+                        entry.getEntryId(),
+                        event.getEventId()
+                )
         );
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -246,6 +248,7 @@ public class RegistrationService {
         res.setEmail(entry.getEmail());
         res.setPhone(entry.getPhone());
         res.setSubmittedAt(entry.getSubmittedAt());
+        res.setCheckedIn(entry.getCheckedIn());
 
         try {
             res.setResponses(

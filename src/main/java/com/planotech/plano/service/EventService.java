@@ -5,9 +5,11 @@ import com.planotech.plano.enums.EventRole;
 import com.planotech.plano.enums.PlatformRole;
 import com.planotech.plano.exception.AccessDeniedException;
 import com.planotech.plano.helper.FileUploader;
+import com.planotech.plano.model.Checkpoint;
 import com.planotech.plano.model.Event;
 import com.planotech.plano.model.EventUser;
 import com.planotech.plano.model.User;
+import com.planotech.plano.repository.CheckpointRepository;
 import com.planotech.plano.repository.EventRepository;
 import com.planotech.plano.repository.EventUserRepository;
 import com.planotech.plano.repository.UserRepository;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.planotech.plano.enums.CheckpointType.*;
+
 @Service
 public class EventService {
 
@@ -42,6 +46,9 @@ public class EventService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    CheckpointRepository checkpointRepository;
 
 
     public ResponseEntity<?> createEvent(CreateEventRequest eventRequest, User loggedInUser) {
@@ -87,11 +94,23 @@ public class EventService {
             return eventUserRepository.save(eu);
         });
 
+        createDefaultCheckpoints(event);
+
         return ResponseEntity.ok(Map.of(
                 "message", "Event created successfully",
                 "status", "success",
                 "code", HttpStatus.OK.value()
         ));
+    }
+
+    private void createDefaultCheckpoints(Event event) {
+        List<Checkpoint> defaults = List.of(
+                new Checkpoint(null, event, REGISTRATION, "Registration Desk", null, true, true, LocalDateTime.now()),
+                new Checkpoint(null, event, FOOD, "Lunch", null, true, true, LocalDateTime.now()),
+                new Checkpoint(null, event, FOOD, "Dinner", null, true, true, LocalDateTime.now()),
+                new Checkpoint(null, event, KIT, "Kit Distribution", null, true, true, LocalDateTime.now())
+        );
+        checkpointRepository.saveAll(defaults);
     }
 
     private User createNewUser(CreateEventRequest req, User creator) {
