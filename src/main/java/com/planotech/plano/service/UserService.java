@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -92,40 +93,48 @@ public class UserService {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @Transactional
     public ResponseEntity<?> forgotPassword(String email) {
-        Map<String, Object> response = new HashMap<>();
-        User exUser = userRepository.findByEmail(email).orElseThrow(() -> new UserNotExistsException(
-                "User not found with email: "
-        ));
-        String otp = OtpUtil.generateOtp();
-        passwordResetTokenRepo.invalidateByUser(exUser);
-//        String verificationToken = UUID.randomUUID().toString();
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setOtpHash(passwordEncoder.encode(otp));
-        resetToken.setUser(exUser);
-        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
-        resetToken.setUsed(false);
 
-        passwordResetTokenRepo.save(resetToken);
+        Map<String, Object> response = new HashMap<>();
+
+        User exUser = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotExistsException("User not found with email"));
+
+        String otp = OtpUtil.generateOtp();
+
+        PasswordResetToken token = passwordResetTokenRepo
+                .findByUser(exUser)
+                .orElse(new PasswordResetToken());
+
+        token.setUser(exUser);
+        token.setOtpHash(passwordEncoder.encode(otp));
+        token.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+        token.setAttemptCount(0);
+        token.setUsed(false);
+
+        passwordResetTokenRepo.save(token);
+
         Map<String, Object> variables = Map.of(
                 "USERNAME", exUser.getName(),
                 "OTP", otp,
                 "EXPIRY", "15 minutes"
         );
+        System.out.println(otp);
+        CompletableFuture<Boolean> sent =
+                emailSender.sendVerificationEmail(
+                        exUser,
+                        EmailType.FORGOT_PASSWORD,
+                        variables,
+                        null
+                );
 
-        CompletableFuture<Boolean> sent = emailSender.sendVerificationEmail(
-                exUser,
-                EmailType.FORGOT_PASSWORD,
-                variables
-        );
-        if (sent.isDone()) {
-            response.put("message", "Verification Email Sent Successfully");
-            response.put("code", HttpStatus.OK.value());
-            response.put("status", "success");
-            return ResponseEntity.ok(response);
-        } else {
-            throw new MailServerException("Couldn't send mail");
-        }
+        response.put("message", "Verification Email Sent Successfully");
+        response.put("code", HttpStatus.OK.value());
+        response.put("status", "success");
+
+        return ResponseEntity.ok(response);
     }
 
     @Transactional

@@ -36,7 +36,6 @@ public class RegistrationFormService {
 
     @Transactional
     public ResponseEntity<?> createDraft(Long eventId, User user) {
-
         EventUser eu = eventAuthorizationService.authorize(eventId, user);
         eventAuthorizationService.validateDraftPermission(user, eu);
         Event event = eventRepository.findById(eventId)
@@ -55,9 +54,6 @@ public class RegistrationFormService {
         form.setStatus(FormStatus.DRAFT);
         form.setVersion(nextVersion);
         form.setActive(true);
-
-        formRepository.save(form);
-
         if (latestForm != null) {
             latestForm.getFields().forEach(f ->
                     form.getFields().add(copyField(f, form))
@@ -184,7 +180,6 @@ public class RegistrationFormService {
 
     private boolean canViewDraft(EventUser eventUser, User user) {
 
-        // Platform-level override
         if (user.getPlatformRole() == PlatformRole.ROLE_SUPER_ADMIN ||
                 user.getPlatformRole() == PlatformRole.ROLE_ORG_ADMIN) {
             return true;

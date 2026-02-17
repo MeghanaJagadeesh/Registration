@@ -37,14 +37,52 @@ public class EmailSender {
 
     @Autowired
     SpringTemplateEngine templateEngine;
+//
+//    @Async
+//    public CompletableFuture<Boolean> sendVerificationEmail(
+//            User user,
+//            EmailType emailType,
+//            Map<String, Object> variables) {
+//        try {
+//            MimeMessage message = mailSender.createMimeMessage();
+//            MimeMessageHelper helper =
+//                    new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+//
+//            helper.setFrom(fromEmail, "Registration");
+//            helper.setTo(user.getEmail());
+//            helper.setSubject(emailType.getSubject());
+//
+//            // Thymeleaf context
+//            org.thymeleaf.context.Context context =
+//                    new org.thymeleaf.context.Context();
+//            context.setVariables(variables);
+//
+//            // Process template
+//            String htmlBody = templateEngine.process(
+//                    emailType.getTemplate().replace(".html", ""),
+//                    context
+//            );
+//
+//            helper.setText(htmlBody, true);
+//
+//            mailSender.send(message);
+//            return CompletableFuture.completedFuture(true);
+//
+//        } catch (Exception e) {
+//            return CompletableFuture.completedFuture(false);
+//        }
+//    }
 
     @Async
     public CompletableFuture<Boolean> sendVerificationEmail(
             User user,
             EmailType emailType,
-            Map<String, Object> variables) {
+            Map<String, Object> variables,
+            Map<String, byte[]> inlineImages) {
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
+
             MimeMessageHelper helper =
                     new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 
@@ -53,17 +91,25 @@ public class EmailSender {
             helper.setSubject(emailType.getSubject());
 
             // Thymeleaf context
-            org.thymeleaf.context.Context context =
-                    new org.thymeleaf.context.Context();
+            Context context = new Context();
             context.setVariables(variables);
 
-            // Process template
             String htmlBody = templateEngine.process(
                     emailType.getTemplate().replace(".html", ""),
                     context
             );
 
             helper.setText(htmlBody, true);
+
+            if (inlineImages != null) {
+                for (Map.Entry<String, byte[]> entry : inlineImages.entrySet()) {
+                    helper.addInline(
+                            entry.getKey(),
+                            new ByteArrayResource(entry.getValue()),
+                            "image/png"
+                    );
+                }
+            }
 
             mailSender.send(message);
             return CompletableFuture.completedFuture(true);
@@ -73,26 +119,5 @@ public class EmailSender {
         }
     }
 
-
-    private String replaceVariables(String template, Map<String, String> variables) {
-        for (Map.Entry<String, String> entry : variables.entrySet()) {
-            template = template.replace(
-                    "{{" + entry.getKey() + "}}",
-                    entry.getValue()
-            );
-        }
-        return template;
-    }
-
-    private String loadTemplate(String templateName) {
-        try (InputStream inputStream =
-                     new ClassPathResource("templates/" + templateName).getInputStream()) {
-
-            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-        } catch (IOException e) {
-            throw new MailServerException("Failed to load email template", e);
-        }
-    }
 
 }

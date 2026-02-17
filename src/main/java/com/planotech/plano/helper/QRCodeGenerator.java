@@ -7,12 +7,14 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 
 @Component
 public class QRCodeGenerator {
 
-    public BufferedImage generateQrCodeImage(String content) {
+    public byte[] generateQrCodeImage(String content) {
 
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
@@ -24,9 +26,13 @@ public class QRCodeGenerator {
                     300
             );
 
-            return MatrixToImageWriter.toBufferedImage(bitMatrix);
+            BufferedImage image= MatrixToImageWriter.toBufferedImage(bitMatrix);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
 
-        } catch (WriterException ex) {
+            return baos.toByteArray();
+
+        } catch (Exception ex) {
             throw new IllegalStateException("Failed to generate QR Code", ex);
         }
     }

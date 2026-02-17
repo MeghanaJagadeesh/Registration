@@ -77,7 +77,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MailServerException.class)
     public ResponseEntity<ApiError> handleMailServerException(
             MailServerException ex) {
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiError(

@@ -29,4 +29,6 @@ public interface PasswordResetTokenRepo
         WHERE o.user = :user AND o.used = false
     """)
     void invalidateByUser(@Param("user") User user);
+
+    Optional<PasswordResetToken> findByUser(User exUser);
 }

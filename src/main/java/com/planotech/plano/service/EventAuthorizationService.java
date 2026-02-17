@@ -25,12 +25,10 @@ public class EventAuthorizationService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        // SUPER ADMIN → everything
         if (user.getPlatformRole() == PlatformRole.ROLE_SUPER_ADMIN) {
             return null;
         }
 
-        // ORG ADMIN → only company events
         if (user.getPlatformRole() == PlatformRole.ROLE_ORG_ADMIN) {
             if (event.getCompany() == null ||
                     !event.getCompany().getCompanyId().equals(user.getCompany().getCompanyId())) {
@@ -39,7 +37,6 @@ public class EventAuthorizationService {
             return null;
         }
 
-        // EVENT ROLE REQUIRED
         return eventUserRepository
                 .findByEvent_EventIdAndUser_UserIdAndActiveTrue(eventId, user.getUserId())
                 .orElseThrow(() ->

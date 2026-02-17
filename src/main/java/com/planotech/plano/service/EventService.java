@@ -5,14 +5,8 @@ import com.planotech.plano.enums.EventRole;
 import com.planotech.plano.enums.PlatformRole;
 import com.planotech.plano.exception.AccessDeniedException;
 import com.planotech.plano.helper.FileUploader;
-import com.planotech.plano.model.Checkpoint;
-import com.planotech.plano.model.Event;
-import com.planotech.plano.model.EventUser;
-import com.planotech.plano.model.User;
-import com.planotech.plano.repository.CheckpointRepository;
-import com.planotech.plano.repository.EventRepository;
-import com.planotech.plano.repository.EventUserRepository;
-import com.planotech.plano.repository.UserRepository;
+import com.planotech.plano.model.*;
+import com.planotech.plano.repository.*;
 import com.planotech.plano.request.CreateEventRequest;
 import com.planotech.plano.response.EventResponse;
 import com.planotech.plano.response.EventUserDTO;
@@ -49,6 +43,9 @@ public class EventService {
 
     @Autowired
     CheckpointRepository checkpointRepository;
+
+    @Autowired
+    EmailContentSettingsRepository emailContentSettingsRepository;
 
 
     public ResponseEntity<?> createEvent(CreateEventRequest eventRequest, User loggedInUser) {
@@ -94,13 +91,28 @@ public class EventService {
             return eventUserRepository.save(eu);
         });
 
-        createDefaultCheckpoints(event);
+        createDefaultCheckpoints(savedEvent);
+        createDefaultEmailContent(savedEvent);
 
         return ResponseEntity.ok(Map.of(
                 "message", "Event created successfully",
                 "status", "success",
                 "code", HttpStatus.OK.value()
         ));
+    }
+
+    private void createDefaultEmailContent(Event event) {
+
+        EmailContentSettings settings = new EmailContentSettings();
+        settings.setEvent(event);
+
+        settings.setSupportEmail("support@planotech.com");
+        settings.setSupportPhone("+91-XXXXXXXXXX");
+        settings.setEventWebsite("https://yourwebsite.com");
+
+        settings.setUpdatedAt(LocalDateTime.now());
+
+        emailContentSettingsRepository.save(settings);
     }
 
     private void createDefaultCheckpoints(Event event) {

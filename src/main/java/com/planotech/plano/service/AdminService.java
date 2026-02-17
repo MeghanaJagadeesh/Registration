@@ -5,9 +5,11 @@ import com.planotech.plano.enums.EventRole;
 import com.planotech.plano.enums.PlatformRole;
 import com.planotech.plano.exception.AccessDeniedException;
 import com.planotech.plano.exception.ResourceNotFoundException;
+import com.planotech.plano.model.EmailContentSettings;
 import com.planotech.plano.model.Event;
 import com.planotech.plano.model.EventUser;
 import com.planotech.plano.model.User;
+import com.planotech.plano.repository.EmailContentSettingsRepository;
 import com.planotech.plano.repository.EventRepository;
 import com.planotech.plano.repository.EventUserRepository;
 import com.planotech.plano.repository.UserRepository;
@@ -43,6 +45,9 @@ public class AdminService {
 
     @Autowired
     EventUserRepository eventUserRepository;
+
+    @Autowired
+    EmailContentSettingsRepository emailContentSettingsRepository;
 
     @Transactional
     public ResponseEntity<?> assignEventUser(Long eventId, CreateUserRequest request, User loggedInUser) {
@@ -117,6 +122,7 @@ public class AdminService {
         event.setLogoUrl(request.getLogo());
         event.setDescription(request.getDescription());
         eventRepository.save(event);
+
         return ResponseEntity.ok(Map.of(
                 "message", "Event updated successfully",
                 "code", "200",

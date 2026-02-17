@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CheckpointRepository extends JpaRepository<Checkpoint, Long> {
     List<Checkpoint> findByEventAndActiveTrue(Event event);
-    Optional<Checkpoint> findByEvent_EventIdAndTypeAndActiveTrue(
+    List<Checkpoint> findByEvent_EventIdAndTypeAndActiveTrue(
             Long eventId,
             CheckpointType type
     );

@@ -4,11 +4,9 @@ import com.planotech.plano.enums.EmailType;
 import com.planotech.plano.helper.EmailSender;
 import com.planotech.plano.helper.FileStorageService;
 import com.planotech.plano.helper.QRCodeGenerator;
-import com.planotech.plano.model.Event;
-import com.planotech.plano.model.RegistrationEntry;
-import com.planotech.plano.model.RegistrationForm;
-import com.planotech.plano.model.User;
+import com.planotech.plano.model.*;
 import com.planotech.plano.record.RegistrationCompletedEvent;
+import com.planotech.plano.repository.EmailContentSettingsRepository;
 import com.planotech.plano.repository.EventRepository;
 import com.planotech.plano.repository.RegistrationEntryRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,9 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import tools.jackson.databind.ObjectMapper;
 
-import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,51 +35,7 @@ public class RegistrationAsyncListener {
     private final QRCodeGenerator qrCodeGenerator;
     private final FileStorageService fileStorageService;
     private final ObjectMapper objectMapper;
-
-//    @Async("backgroundExecutor")
-//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-//    public void handleRegistrationCompleted(
-//            RegistrationCompletedEvent eventData) {
-//
-//        RegistrationEntry entry =
-//                entryRepository.findById(eventData.entryId())
-//                        .orElseThrow();
-//
-//        Event event =
-//                eventRepository.findById(eventData.eventId())
-//                        .orElseThrow();
-//
-//        RegistrationForm form = entry.getForm();
-//
-//        try {
-//            String qrPayload = String.format(
-//                    "Name: %s\nEmail: %s\nBadge: %s\nEvent: %s",
-//                    entry.getName(),
-//                    entry.getEmail(),
-//                    entry.getBadgeCode(),
-//                    event.getName()
-//            );
-//
-//            BufferedImage image = qrCodeGenerator.generateQrCodeImage(qrPayload);
-//            String qrUrl = fileStorageService.handleFileUploadAsync(image, event.getName(), event.getEventKey()).join();
-//            entry.setQrUrl(qrUrl);
-//            entryRepository.save(entry);
-//
-//            User tempUser = new User();
-//            tempUser.setEmail(entry.getEmail());
-//            tempUser.setName(entry.getName());
-//
-//            emailSender.sendVerificationEmail(
-//                    tempUser,
-//                    EmailType.EVENT_REGISTRATION_CONFIRMATION,
-//                    variableService.buildRegistrationEmailVariables(
-//                            event, form, entry
-//                    )
-//            );
-//        } catch (Exception e) {
-//            throw new RuntimeException("Something went wrong " + e.getMessage());
-//        }
-//    }
+    private final EmailContentSettingsRepository emailContentSettingsRepository;
 
     @Async("backgroundExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -107,12 +63,15 @@ public class RegistrationAsyncListener {
 
             String qrPayload = objectMapper.writeValueAsString(payloadMap);
 
-            BufferedImage image = qrCodeGenerator.generateQrCodeImage(qrPayload);
-            String qrUrl = fileStorageService
-                    .handleFileUploadAsync(image, event.getName(), event.getEventKey())
-                    .join();
+            byte[] image = qrCodeGenerator.generateQrCodeImage(qrPayload);
+            Map<String, byte[]> inlineImages = new HashMap<>();
+            inlineImages.put("qrImage", image);
 
-            entry.setQrUrl(qrUrl);
+            if (event.getLogoUrl() != null) {
+                byte[] logoBytes = getImageBytesFromUrl(event.getLogoUrl());
+                inlineImages.put("eventLogo", logoBytes);
+            }
+
             entryRepository.save(entry);
 
             User tempUser = new User();
@@ -122,7 +81,8 @@ public class RegistrationAsyncListener {
             emailSender.sendVerificationEmail(
                     tempUser,
                     EmailType.EVENT_REGISTRATION_CONFIRMATION,
-                    variableService.buildRegistrationEmailVariables(event, form, entry)
+                    variableService.buildRegistrationEmailVariables(event, form, entry),
+                    inlineImages
             );
 
         } catch (Exception e) {
@@ -130,5 +90,19 @@ public class RegistrationAsyncListener {
         }
     }
 
+    private byte[] getImageBytesFromUrl(String imageUrl) {
+        System.out.println(imageUrl);
+        try {
+            URI uri = new URI(imageUrl.replace(" ", "%20"));
+            URL url = uri.toURL();
+
+            try (InputStream in = url.openStream()) {
+                return in.readAllBytes();
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load image from URL", e);
+        }
+    }
 }
 

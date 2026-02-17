@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,15 +18,34 @@ public interface RegistrationEntryRepository extends JpaRepository<RegistrationE
 
     Page<RegistrationEntry> findByEvent_EventId(Long eventId, Pageable pageable);
 
+//    @Query("""
+//        SELECT r FROM RegistrationEntry r
+//        WHERE r.event.eventId = :eventId
+//        AND (
+//            LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%'))
+//            OR LOWER(r.email) LIKE LOWER(CONCAT('%', :search, '%'))
+//            OR LOWER(r.phone) LIKE LOWER(CONCAT('%', :search, '%'))
+//        )
+//    """)
+//    Page<RegistrationEntry> search(
+//            @Param("eventId") Long eventId,
+//            @Param("search") String search,
+//            Pageable pageable
+//    );
+
     @Query("""
-        SELECT r FROM RegistrationEntry r
-        WHERE r.event.eventId = :eventId
-        AND (
-            LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(r.email) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(r.phone) LIKE LOWER(CONCAT('%', :search, '%'))
-        )
-    """)
+    SELECT r FROM RegistrationEntry r
+    WHERE r.event.eventId = :eventId
+    AND (
+        :search IS NULL
+        OR :search = ''
+        OR LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(r.email) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(r.phone) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(r.badgeCode) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(r.responsesJson) LIKE LOWER(CONCAT('%', :search, '%'))
+    )
+""")
     Page<RegistrationEntry> search(
             @Param("eventId") Long eventId,
             @Param("search") String search,
@@ -38,4 +58,7 @@ public interface RegistrationEntryRepository extends JpaRepository<RegistrationE
             Long eventId,
             String badgeCode
     );
+
+    List<RegistrationEntry> findByEvent_EventIdOrderBySubmittedAtDesc(Long eventId);
+
 }

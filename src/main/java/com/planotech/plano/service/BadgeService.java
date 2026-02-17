@@ -21,7 +21,11 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -101,11 +105,10 @@ public class BadgeService {
         res.setPhone(entry.getPhone());
 
         res.setBadgeCode(entry.getBadgeCode());
-        res.setQrUrl(entry.getQrUrl());
+
 
         res.setSubmittedAt(entry.getSubmittedAt());
 
-        try {
             res.setResponses(
                     objectMapper.readValue(
                             entry.getResponsesJson(),
@@ -113,10 +116,6 @@ public class BadgeService {
                             }
                     )
             );
-        } catch (Exception e) {
-            res.setResponses(Map.of());
-        }
-
         return res;
     }
 
@@ -192,7 +191,6 @@ public class BadgeService {
             User user
     ) {
         eventAuthorizationService.authorize(eventId, user);
-
         RegistrationEntry entry = entryRepository
                 .findById(entryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Entry not found"));
@@ -209,16 +207,13 @@ public class BadgeService {
         entry.setCheckedInAt(LocalDateTime.now());
         entryRepository.save(entry);
 
-        Checkpoint registrationCheckpoint =
+        List<Checkpoint> registrationCheckpoint =
                 checkpointRepository
                         .findByEvent_EventIdAndTypeAndActiveTrue(
                                 eventId,
                                 CheckpointType.REGISTRATION
-                        )
-                        .orElseThrow(() ->
-                                new IllegalStateException("Registration checkpoint not configured")
                         );
-        checkPointService.saveLog(entry, registrationCheckpoint, user);
+        checkPointService.saveLog(entry, registrationCheckpoint.get(0), user);
 
         return ResponseEntity.ok(
                 Map.of(
@@ -229,4 +224,24 @@ public class BadgeService {
         );
     }
 
+    @Transactional
+    public ResponseEntity<?> exportAll(Long eventId, User user) {
+
+        eventAuthorizationService.authorize(eventId, user);
+
+        List<RegistrationEntry> entries =
+                entryRepository.findByEvent_EventIdOrderBySubmittedAtDesc(eventId);
+
+        List<BadgeListResponse> data = entries.stream()
+                .map(this::toBadgeListResponse)
+                .toList();
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "status", "success",
+                        "total", data.size(),
+                        "data", data
+                )
+        );
+    }
 }

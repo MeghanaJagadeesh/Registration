@@ -32,9 +32,6 @@ public class FormSectionService {
     @Autowired
     EventAuthorizationService eventAuthorizationService;
 
-    @Autowired
-    JsonUtil jsonUtil;
-
     @Transactional
     public void saveSections(
             Long formId,
@@ -113,19 +110,19 @@ public class FormSectionService {
         return r;
     }
 
-    public Map<String, Object> getMailVariables(Long formId) {
-
-        FormSection mailSection = sectionRepository
-                .findByForm_FormIdAndTypeAndActiveTrue(
-                        formId,
-                        FormSectionType.FORM_MAIL
-                )
-                .orElse(null);
-
-        if (mailSection == null) {
-            return new HashMap<>();
-        }
-
-        return jsonUtil.toMap(mailSection.getDataJson());
-    }
+//    public Map<String, Object> getMailVariables(Long formId) {
+//
+//        FormSection mailSection = sectionRepository
+//                .findByForm_FormIdAndTypeAndActiveTrue(
+//                        formId,
+//                        FormSectionType.FORM_MAIL
+//                )
+//                .orElse(null);
+//
+//        if (mailSection == null) {
+//            return new HashMap<>();
+//        }
+//
+//        return jsonUtil.toMap(mailSection.getDataJson());
+//    }
 }

@@ -32,9 +32,6 @@ public class SuperAdminService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    EventRepository eventRepository;
-
-    @Autowired
     EventUserRepository eventUserRepository;
 
     public ResponseEntity<?> createSuperAdmin(User user) {

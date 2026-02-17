@@ -21,12 +21,20 @@ public class AdminRegistrationController {
     public ResponseEntity<?> getRegistrations(
             @PathVariable Long eventId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String search,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         return registrationService.getRegistrations(eventId, page, size, search, userPrincipal.getUser());
     }
 
+    @GetMapping("/events/{eventId}/exportAll")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ORG_ADMIN','USER')")
+    public ResponseEntity<?> exportAll(
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        return registrationService.exportAll(eventId, userPrincipal.getUser());
+    }
 
 }

@@ -264,4 +264,18 @@ public class RegistrationService {
         return res;
     }
 
+    public ResponseEntity<?> exportAll(Long eventId, User user) {
+        eventAuthorizationService.authorize(eventId, user);
+        List<RegistrationEntry> entries =
+                entryRepository.findByEvent_EventIdOrderBySubmittedAtDesc(eventId);
+        List<RegistrationAdminResponse> data = entries.stream()
+                .map(this::toAdminResponse)
+                .toList();
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "total", data.size(),
+                "data", data
+        ));
+    }
 }

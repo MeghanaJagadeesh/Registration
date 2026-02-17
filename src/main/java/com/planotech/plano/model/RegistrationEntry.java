@@ -43,8 +43,6 @@ public class RegistrationEntry {
     @Column(nullable = false, unique = true, updatable = false)
     private String badgeCode;
 
-    private String qrUrl;
-
     private LocalDateTime submittedAt;
 
     @Column(nullable = false)

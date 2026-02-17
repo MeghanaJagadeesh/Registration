@@ -15,8 +15,6 @@ public class BadgeListResponse {
     private String phone;
 
     private String badgeCode;
-    private String qrUrl;
-
     private LocalDateTime submittedAt;
 
     private Map<String, Object> responses;

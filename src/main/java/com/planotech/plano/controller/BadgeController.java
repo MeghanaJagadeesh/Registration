@@ -27,6 +27,14 @@ public class BadgeController {
         return badgeService.getAllBadges(eventId, page, size, search, userPrincipal.getUser());
     }
 
+    @GetMapping("/badges/exportAll")
+    public ResponseEntity<?> exportAll(
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        return badgeService.exportAll(eventId, userPrincipal.getUser());
+    }
+
     @PostMapping("/badges/filter")
     public ResponseEntity<?> filterBadges(
             @PathVariable Long eventId,

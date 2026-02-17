@@ -7,6 +7,5 @@ public enum FormSectionType {
     FORM_SPONSORS,
     FORM_RULES,
     FORM_FOOTER,
-    FORM_LOGO,
-    FORM_MAIL
+    FORM_LOGO
 }

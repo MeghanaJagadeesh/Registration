@@ -1,6 +1,5 @@
 package com.planotech.plano.service;
 
-import com.nimbusds.oauth2.sdk.util.JSONUtils;
 import com.planotech.plano.enums.CheckpointType;
 import com.planotech.plano.exception.CustomBadRequestException;
 import com.planotech.plano.exception.ResourceNotFoundException;
@@ -11,6 +10,7 @@ import com.planotech.plano.repository.CheckpointRepository;
 import com.planotech.plano.repository.EventRepository;
 import com.planotech.plano.repository.RegistrationEntryRepository;
 import com.planotech.plano.request.CreateCheckpointRequest;
+import com.planotech.plano.response.BadgeListResponse;
 import com.planotech.plano.response.CheckpointLogResponse;
 import com.planotech.plano.response.CheckpointResponse;
 import jakarta.transaction.Transactional;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
@@ -86,7 +87,7 @@ public class CheckPointService {
 
         return switch (checkpoint.getType()) {
 
-            case REGISTRATION -> handleRegistration(entry, user, checkpoint);
+            case REGISTRATION -> handleRegistration(eventId,entry, user, checkpoint);
 
             case KIT -> handleKit(entry, user, checkpoint);
 
@@ -138,7 +139,7 @@ public class CheckPointService {
         return ResponseEntity.ok(success(entry, checkpoint));
     }
 
-    private ResponseEntity<?> handleRegistration(RegistrationEntry entry, User user, Checkpoint checkpoint) {
+    private ResponseEntity<?> handleRegistration(Long eventId, RegistrationEntry entry, User user, Checkpoint checkpoint) {
         if (Boolean.TRUE.equals(entry.getCheckedIn())) {
             return ResponseEntity.badRequest()
                     .body(Map.of(
@@ -151,11 +152,45 @@ public class CheckPointService {
         entry.setCheckedInAt(LocalDateTime.now());
         registrationEntryRepository.save(entry);
         saveLog(entry, checkpoint, user);
+        RegistrationEntry badgeEntry = registrationEntryRepository
+                .findByEvent_EventIdAndBadgeCode(eventId, entry.getBadgeCode())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Badge not found")
+                );
+        BadgeListResponse response = toBadgeListResponse(badgeEntry);
         return ResponseEntity.ok(Map.of(
                 "status", "SUCCESS",
                 "action", "PRINT_BADGE",
-                "name", entry.getName()
+                "name", entry.getName(),
+                "data", response
         ));
+    }
+
+    private BadgeListResponse toBadgeListResponse(RegistrationEntry entry) {
+        BadgeListResponse res = new BadgeListResponse();
+
+        res.setEntryId(entry.getEntryId());
+        res.setName(entry.getName());
+        res.setEmail(entry.getEmail());
+        res.setPhone(entry.getPhone());
+
+        res.setBadgeCode(entry.getBadgeCode());
+
+        res.setSubmittedAt(entry.getSubmittedAt());
+
+        try {
+            res.setResponses(
+                    objectMapper.readValue(
+                            entry.getResponsesJson(),
+                            new TypeReference<Map<String, Object>>() {
+                            }
+                    )
+            );
+        } catch (Exception e) {
+            res.setResponses(Map.of());
+        }
+
+        return res;
     }
 
     public void saveLog(
