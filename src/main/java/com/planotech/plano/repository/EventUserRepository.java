@@ -14,13 +14,6 @@ import java.util.Optional;
 public interface EventUserRepository extends JpaRepository<EventUser, Long> {
     boolean existsByUser_UserIdAndEvent_EventId(Long userId, Long eventId);
 
-//    @Query("""
-//                SELECT eu.event
-//                FROM EventUser eu
-//                WHERE eu.user.id = :userId
-//                  AND eu.role = :role
-//                  AND eu.active = true
-//            """)
     Optional<EventUser> findByEvent_EventIdAndUser_UserIdAndActiveTrue(Long eventId, Long userId);
 
     Optional<EventUser> findByUser_UserIdAndEvent_EventId(Long userId, Long eventId);
@@ -43,10 +36,18 @@ public interface EventUserRepository extends JpaRepository<EventUser, Long> {
     Optional<EventRole> findHighestRoleByUserId(Long userId);
 
     @Query("""
-        SELECT eu FROM EventUser eu
-        JOIN FETCH eu.user u
-        WHERE eu.active = true
-        AND eu.event.eventId IN :eventIds
-    """)
+                SELECT eu FROM EventUser eu
+                JOIN FETCH eu.user u
+                WHERE eu.active = true
+                AND eu.event.eventId IN :eventIds
+            """)
     List<EventUser> findActiveUsersByEventIds(List<Long> eventIds);
+
+    @Query("""
+                SELECT e.eventId
+                FROM EventUser a
+                JOIN a.event e
+                WHERE a.user.userId = :userId
+            """)
+    List<Long> findAssignedEventIds(Long userId);
 }

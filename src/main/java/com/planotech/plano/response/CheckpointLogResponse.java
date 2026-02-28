@@ -16,6 +16,7 @@ public class CheckpointLogResponse {
 
     private String attendeeName;
     private String attendeeEmail;
+    private String badgeCode;
 
     private String checkpointName;
     private CheckpointType checkpointType;

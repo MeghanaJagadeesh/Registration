@@ -30,4 +30,6 @@ public interface RegistrationFormRepository extends JpaRepository<RegistrationFo
         WHERE r.event.eventId = :eventId AND r.formId <> :currentId
     """)
     void archiveOtherVersions(Long eventId, Long currentId);
+
+    Optional<RegistrationForm> findByEventEventIdAndActiveTrueAndStatus(Long eventId, FormStatus status);
 }

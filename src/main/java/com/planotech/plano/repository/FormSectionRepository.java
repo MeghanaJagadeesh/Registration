@@ -12,13 +12,5 @@ import java.util.Optional;
 public interface FormSectionRepository extends JpaRepository<FormSection, Long> {
     List<FormSection> findByForm_FormIdOrderByDisplayOrderAsc(Long formId);
 
-    Optional<FormSection> findByForm_FormIdAndTypeAndActiveTrue(
-            Long formId,
-            FormSectionType type
-    );
-
-    List<FormSection> findByForm_FormIdAndActiveTrueOrderByDisplayOrder(
-            Long formId
-    );
 }
 

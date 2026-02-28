@@ -15,6 +15,10 @@ import com.planotech.plano.response.CheckpointLogResponse;
 import com.planotech.plano.response.CheckpointResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -87,7 +91,7 @@ public class CheckPointService {
 
         return switch (checkpoint.getType()) {
 
-            case REGISTRATION -> handleRegistration(eventId,entry, user, checkpoint);
+            case REGISTRATION -> handleRegistration(eventId, entry, user, checkpoint);
 
             case KIT -> handleKit(entry, user, checkpoint);
 
@@ -251,94 +255,12 @@ public class CheckPointService {
         ));
     }
 
-    public ResponseEntity<?> getFoodScans(Long eventId, User user) {
-
-        eventAuthorizationService.authorize(eventId, user);
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow();
-
-        List<CheckpointLogResponse> data =
-                checkpointLogRepository
-                        .findByCheckpoint_TypeAndEvent(CheckpointType.FOOD, event)
-                        .stream()
-                        .map(this::toDto)
-                        .toList();
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "count", data.size(),
-                "data", data
-        ));
-    }
-
-    public ResponseEntity<?> getKitScans(Long eventId, User user) {
-
-        eventAuthorizationService.authorize(eventId, user);
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow();
-
-        List<CheckpointLogResponse> data =
-                checkpointLogRepository
-                        .findByCheckpoint_TypeAndEvent(CheckpointType.KIT, event)
-                        .stream()
-                        .map(this::toDto)
-                        .toList();
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "kitCollectedCount", data.size(),
-                "data", data
-        ));
-    }
-
-    public ResponseEntity<?> getHallEntries(Long eventId, User user) {
-
-        eventAuthorizationService.authorize(eventId, user);
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow();
-
-        List<CheckpointLogResponse> data =
-                checkpointLogRepository
-                        .findByCheckpoint_TypeAndEvent(CheckpointType.HALL, event)
-                        .stream()
-                        .map(this::toDto)
-                        .toList();
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "entries", data.size(),
-                "data", data
-        ));
-    }
-
-    public ResponseEntity<?> getAllLogs(Long eventId, User user) {
-
-        eventAuthorizationService.authorize(eventId, user);
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow();
-
-        List<CheckpointLogResponse> data =
-                checkpointLogRepository.findByEvent(event)
-                        .stream()
-                        .map(this::toDto)
-                        .toList();
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "totalLogs", data.size(),
-                "data", data
-        ));
-    }
-
     private CheckpointLogResponse toDto(CheckpointLog log) {
 
         return CheckpointLogResponse.builder()
                 .attendeeName(log.getRegistrationEntry().getName())
                 .attendeeEmail(log.getRegistrationEntry().getEmail())
+                .badgeCode(log.getRegistrationEntry().getBadgeCode())
                 .checkpointName(log.getCheckpoint().getName())
                 .checkpointType(log.getCheckpoint().getType())
                 .scannedBy(log.getScannedBy().getName())
@@ -354,6 +276,8 @@ public class CheckPointService {
             Long checkpointId,
             LocalDate fromDate,
             LocalDate toDate,
+            int page,
+            int size,
             User user
     ) {
 
@@ -362,37 +286,49 @@ public class CheckPointService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        List<CheckpointLog> logs;
+        // Convert LocalDate to LocalDateTime range
+        LocalDateTime fromDateTime = null;
+        LocalDateTime toDateTime = null;
 
-        if (checkpointId != null) {
-            Checkpoint checkpoint = checkpointRepository.findById(checkpointId)
-                    .orElseThrow(() -> new RuntimeException("Checkpoint not found"));
-            logs = checkpointLogRepository.findByCheckpointAndEvent(checkpoint, event);
-
-        } else if (type != null) {
-            logs = checkpointLogRepository.findByCheckpoint_TypeAndEvent(type, event);
-        } else {
-            logs = checkpointLogRepository.findByEvent(event);
+        if (fromDate != null) {
+            fromDateTime = fromDate.atStartOfDay(); // 00:00:00
         }
 
-        if (fromDate != null || toDate != null) {
-            logs = logs.stream()
-                    .filter(log -> {
-                        LocalDate date = log.getScannedAt().toLocalDate();
-                        boolean after = fromDate == null || !date.isBefore(fromDate);
-                        boolean before = toDate == null || !date.isAfter(toDate);
-                        return after && before;
-                    })
-                    .toList();
+        if (toDate != null) {
+            toDateTime = toDate.atTime(23, 59, 59); // End of day
         }
 
-        List<CheckpointLogResponse> response =
-                logs.stream().map(this::toDto).toList();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("scannedAt").descending()
+        );
+
+        Page<CheckpointLog> logsPage = checkpointLogRepository
+                .findLogsWithFilters(
+                        event,
+                        type,
+                        checkpointId,
+                        fromDateTime,
+                        toDateTime,
+                        pageable
+                );
+
+        List<CheckpointLogResponse> response = logsPage
+                .getContent()
+                .stream()
+                .map(this::toDto)
+                .toList();
 
         return ResponseEntity.ok(Map.of(
                 "status", "SUCCESS",
-                "count", response.size(),
+                "currentPage", logsPage.getNumber(),
+                "pageSize", logsPage.getSize(),
+                "totalElements", logsPage.getTotalElements(),
+                "totalPages", logsPage.getTotalPages(),
                 "data", response
         ));
     }
+
+
 }

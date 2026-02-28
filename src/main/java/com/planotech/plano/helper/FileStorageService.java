@@ -1,6 +1,7 @@
 package com.planotech.plano.helper;
 
 import com.jcraft.jsch.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,23 @@ import java.util.concurrent.Executors;
 @Service
 public class FileStorageService {
 
-        public static final int SFTP_PORT = 22;
-    public static final String SFTP_USER = "dh_nw536f";
-    public static final String SFTP_PASSWORD = "Srikrishna@0700";
-    public static final String SFTP_HOST = "pdx1-shared-a2-03.dreamhost.com";
-    public static final String SFTP_DIRECTORY = "/home/dh_nw536f/aws.quantumparadigm.in/documents/";
-    public static final String BASE_URL = "https://aws.quantumparadigm.in/documents/";
+    @Value("${sftp.port}")
+    public int SFTP_PORT;
+
+    @Value("${sftp.user}")
+    public String SFTP_USER;
+
+    @Value("${sftp.password}")
+    public String SFTP_PASSWORD;
+
+    @Value("${sftp.host}")
+    public String SFTP_HOST;
+
+    @Value("${sftp.directory}")
+    public String SFTP_DIRECTORY;
+
+    @Value("${sftp.base-url}")
+    public String BASE_URL;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 

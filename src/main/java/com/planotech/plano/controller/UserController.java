@@ -50,5 +50,8 @@ public class UserController {
         return userService.refreshToken(request);
     }
 
-
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return userService.logout(userPrincipal.getUser());
+    }
 }

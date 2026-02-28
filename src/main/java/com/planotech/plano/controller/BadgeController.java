@@ -1,7 +1,7 @@
 package com.planotech.plano.controller;
 
 import com.planotech.plano.auth.UserPrincipal;
-import com.planotech.plano.model.User;
+import com.planotech.plano.request.BadgeConfigRequestDTO;
 import com.planotech.plano.request.BadgeFilterRequest;
 import com.planotech.plano.service.BadgeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,5 +70,30 @@ public class BadgeController {
                 entryId,
                 userPrincipal.getUser()
         );
+    }
+
+
+    @GetMapping("/form-fields")
+    public ResponseEntity<?> getFormFields(
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        return badgeService.getFormFieldsForBadge(
+                eventId,
+                userPrincipal.getUser()
+        );
+    }
+
+    @PostMapping("/config")
+    public ResponseEntity<?> saveBadgeConfig(
+            @PathVariable Long eventId,
+            @RequestBody BadgeConfigRequestDTO dto, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return badgeService.saveConfig(eventId, dto, userPrincipal.getUser());
+    }
+
+    @GetMapping("/config")
+    public ResponseEntity<?> getBadgeConfig(
+            @PathVariable Long eventId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return badgeService.getConfig(eventId, userPrincipal.getUser());
     }
 }

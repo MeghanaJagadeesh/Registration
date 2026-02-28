@@ -1,14 +1,13 @@
 package com.planotech.plano.service;
 
 import com.planotech.plano.enums.CheckpointType;
+import com.planotech.plano.enums.FormStatus;
 import com.planotech.plano.exception.ResourceNotFoundException;
-import com.planotech.plano.model.Checkpoint;
-import com.planotech.plano.model.RegistrationEntry;
-import com.planotech.plano.model.User;
-import com.planotech.plano.repository.CheckpointRepository;
-import com.planotech.plano.repository.RegistrationEntryCustomRepository;
-import com.planotech.plano.repository.RegistrationEntryRepository;
+import com.planotech.plano.model.*;
+import com.planotech.plano.repository.*;
+import com.planotech.plano.request.BadgeConfigRequestDTO;
 import com.planotech.plano.request.BadgeFilterRequest;
+import com.planotech.plano.response.BadgeFormField;
 import com.planotech.plano.response.BadgeListResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
@@ -25,9 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BadgeService {
@@ -49,6 +48,15 @@ public class BadgeService {
 
     @Autowired
     CheckpointRepository checkpointRepository;
+
+    @Autowired
+    RegistrationFormRepository formRepository;
+
+    @Autowired
+    BadgeConfigurationRepository badgeRepo;
+
+    @Autowired
+    EventRepository eventRepository;
 
     @Transactional
     public ResponseEntity<?> getAllBadges(
@@ -109,13 +117,13 @@ public class BadgeService {
 
         res.setSubmittedAt(entry.getSubmittedAt());
 
-            res.setResponses(
-                    objectMapper.readValue(
-                            entry.getResponsesJson(),
-                            new TypeReference<Map<String, Object>>() {
-                            }
-                    )
-            );
+        res.setResponses(
+                objectMapper.readValue(
+                        entry.getResponsesJson(),
+                        new TypeReference<Map<String, Object>>() {
+                        }
+                )
+        );
         return res;
     }
 
@@ -244,4 +252,124 @@ public class BadgeService {
                 )
         );
     }
+
+    public ResponseEntity<?> getFormFieldsForBadge(Long eventId, User user) {
+        eventAuthorizationService.authorize(eventId, user);
+        RegistrationForm form = formRepository
+                .findByEventEventIdAndActiveTrueAndStatus(eventId, FormStatus.PUBLISHED)
+                .orElseThrow(() -> new RuntimeException("Active form not found"));
+        System.out.println(form.getFormId());
+        return ResponseEntity.ok(form.getFields()
+                .stream()
+                .sorted(Comparator.comparing(FormField::getDisplayOrder))
+                .map(field -> new BadgeFormField(
+                        field.getFieldKey(),
+                        field.getLabel(),
+                        field.getRequired(),
+                        field.getFieldType().name()
+                ))
+                .collect(Collectors.toList()));
+    }
+
+    public ResponseEntity<?> saveConfig(Long eventId,
+                                        BadgeConfigRequestDTO dto,
+                                        User user) {
+
+        eventAuthorizationService.authorize(eventId, user);
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        RegistrationForm form = formRepository
+                .findByEventEventIdAndActiveTrueAndStatus(eventId, FormStatus.PUBLISHED)
+                .orElseThrow(() -> new RuntimeException("Active form not found"));
+
+        if (dto.getSelectedFieldKeys() == null || dto.getSelectedFieldKeys().isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "code", 400,
+                            "status", "fail",
+                            "message", "At least one field must be selected"
+                    )
+            );
+        }
+
+        List<String> validKeys = form.getFields()
+                .stream()
+                .map(FormField::getFieldKey)
+                .toList();
+
+        List<String> cleanedUniqueKeys = dto.getSelectedFieldKeys()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()  // removes duplicates while keeping order
+                .toList();
+
+        for (String key : cleanedUniqueKeys) {
+            if (!validKeys.contains(key)) {
+                return ResponseEntity.badRequest().body(
+                        Map.of(
+                                "code", 400,
+                                "status", "fail",
+                                "message", "Invalid field selected: " + key
+                        )
+                );
+            }
+        }
+
+        String json = objectMapper.writeValueAsString(cleanedUniqueKeys);
+
+        BadgeConfiguration config = badgeRepo
+                .findByEventEventId(eventId)
+                .orElse(new BadgeConfiguration());
+
+        config.setEvent(event);
+        config.setSelectedFieldKeysJson(json);
+
+        badgeRepo.save(config);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "code", 200,
+                        "status", "success",
+                        "message", "Badge configuration saved successfully"
+                )
+        );
+    }
+
+    public ResponseEntity<?> getConfig(Long eventId, User user) {
+
+        eventAuthorizationService.authorize(eventId, user);
+
+        BadgeConfiguration config = badgeRepo
+                .findByEventEventId(eventId)
+                .orElseThrow(() -> new RuntimeException("Badge config not found"));
+
+        try {
+            List<String> selectedKeys = objectMapper.readValue(
+                    config.getSelectedFieldKeysJson(),
+                    new TypeReference<List<String>>() {
+                    }
+            );
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "code", 200,
+                            "status", "success",
+                            "data", new BadgeConfigRequestDTO(selectedKeys)
+                    )
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "code", 500,
+                            "status", "fail",
+                            "message", "Error parsing badge configuration"
+                    ));
+        }
+    }
+
 }

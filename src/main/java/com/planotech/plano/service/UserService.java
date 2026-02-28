@@ -218,4 +218,17 @@ public class UserService {
                 highestEventRole
         );
     }
+
+    public ResponseEntity<?> logout(User user) {
+
+        user.setRefreshToken(null);
+        userRepository.save(user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Logout successful");
+        response.put("status", "success");
+        response.put("code", HttpStatus.OK.value());
+
+        return ResponseEntity.ok(response);
+    }
 }

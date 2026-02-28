@@ -18,7 +18,8 @@ public class CorsConfig {
         // Frontend URLs
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "https://registration.planotechevents.com:9090"
         ));
 
         config.setAllowedMethods(List.of(

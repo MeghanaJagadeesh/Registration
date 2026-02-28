@@ -50,10 +50,13 @@ public class CheckPointController {
             @RequestParam(required = false) Long checkpointId,
             @RequestParam(required = false) LocalDate fromDate,
             @RequestParam(required = false) LocalDate toDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return checkPointService.getLogs(
                 eventId, type, checkpointId, fromDate, toDate,
+                page, size,
                 principal.getUser()
         );
     }

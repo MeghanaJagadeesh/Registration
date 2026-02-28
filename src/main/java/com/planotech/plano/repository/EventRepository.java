@@ -15,13 +15,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByEventKey(String eventKey);
 
-    // SUPER ADMIN – all active events
-//    @Query("""
-//                SELECT e FROM Event e
-//                WHERE e.active = true
-//                AND e.endDate >= :today
-//                ORDER BY e.startDate ASC
-//            """)
     @Query("""
                 SELECT e FROM Event e
                 WHERE e.active = true
@@ -29,7 +22,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     List<Event> findAllActiveEvents(@Param("today") LocalDate today);
 
-    // ORG ADMIN – active events under company
     @Query("""
                 SELECT e FROM Event e
                 WHERE e.company.companyId = :companyId
