@@ -44,7 +44,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
             if (authToken == null || !authToken.startsWith("Bearer ")) {
-                sendJwtError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                sendJwtError(response, HttpServletResponse.
+                                SC_UNAUTHORIZED,
                         "JWT token is missing");
                 return;
             }

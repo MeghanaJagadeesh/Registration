@@ -1,7 +1,6 @@
 package com.planotech.plano.repository;
 
 import com.planotech.plano.model.RegistrationEntry;
-import com.planotech.plano.request.BadgeFilterRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -78,10 +78,11 @@ public class RegistrationAsyncListener {
             tempUser.setEmail(entry.getEmail());
             tempUser.setName(entry.getName());
 
+            Map<String, Object> variable = variableService.buildRegistrationEmailVariables(event, form, entry);
             emailSender.sendVerificationEmail(
                     tempUser,
                     EmailType.EVENT_REGISTRATION_CONFIRMATION,
-                    variableService.buildRegistrationEmailVariables(event, form, entry),
+                    variable,
                     inlineImages
             );
 

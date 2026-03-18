@@ -16,5 +16,6 @@ public class EmailContentRequest {
     private String supportPhone;
     private String eventWebsite;
     private String eventLogo;
+    private String eventStartTime;
 }
 

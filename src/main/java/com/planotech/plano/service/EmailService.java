@@ -62,6 +62,7 @@ public class EmailService {
         settings.setEventWebsite(request.getEventWebsite());
         settings.setUpdatedAt(LocalDateTime.now());
 
+
         emailContentSettingsRepository.save(settings);
 
         return ResponseEntity.ok(Map.of(
@@ -85,9 +86,10 @@ public class EmailService {
 
         response.put("eventName", event.getName());
         response.put("eventDescription", event.getDescription());
-        response.put("eventDate", event.getStartDate());
+        response.put("eventStartDate", event.getStartDate());
         response.put("eventLocation", event.getLocation());
         response.put("eventLogo", event.getLogoUrl());
+        response.put("eventStartTime", null);
 
 
         response.put("eventWebsite",

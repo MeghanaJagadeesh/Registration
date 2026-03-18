@@ -64,6 +64,7 @@ public class EventService {
         event.setCreatedBy(loggedInUser);
         event.setCreatedAt(LocalDateTime.now());
         event.setLogoUrl(eventRequest.getLogo());
+        event.setEventStartTime(eventRequest.getEventStartTime());
 
         if (loggedInUser.getPlatformRole() == PlatformRole.ROLE_ORG_ADMIN) {
             event.setCompany(loggedInUser.getCompany());

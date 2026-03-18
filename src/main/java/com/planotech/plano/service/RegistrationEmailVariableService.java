@@ -36,26 +36,27 @@ public class RegistrationEmailVariableService {
         vars.put("badgeCode", entry.getBadgeCode());
         vars.put("eventName", event.getName());
         vars.put("eventLocation", event.getLocation());
-        vars.put("eventDate", event.getStartDate());
+        vars.put("eventStartDate", event.getStartDate());
         vars.put("eventLogo", event.getLogoUrl());
         vars.put("eventDescription", event.getDescription());
+        vars.put("eventStartTime", event.getEventStartTime());
 
         vars.put("supportEmail",
                 settings != null && settings.getSupportEmail() != null
                         ? settings.getSupportEmail()
-                        : "support@" + event.getEventKey().toLowerCase() + ".com"
+                        : null
         );
 
         vars.put("supportPhone",
                 settings != null && settings.getSupportPhone() != null
                         ? settings.getSupportPhone()
-                        : ""
+                        : null
         );
 
         vars.put("eventWebsite",
                 settings != null && settings.getEventWebsite() != null
                         ? settings.getEventWebsite()
-                        : "#"
+                        : null
         );
 
         return vars;

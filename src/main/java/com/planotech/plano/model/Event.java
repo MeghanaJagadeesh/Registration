@@ -25,6 +25,7 @@ public class Event {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private String eventStartTime;
 
     private String logoUrl;
 

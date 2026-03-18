@@ -34,4 +34,11 @@ public class AnalyticsController {
                 dashboardService.getUserAnalytics(userPrincipal.getUser())
         );
     }
+
+    @GetMapping
+    public ResponseEntity<UserAnalyticsDTO> getDashboardAnalytics(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(
+                dashboardService.getDashboardAnalytics(userPrincipal.getUser())
+        );
+    }
 }

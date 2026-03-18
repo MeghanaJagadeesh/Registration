@@ -257,4 +257,32 @@ public class DashboardService {
                 .mostActiveEvent(mostActiveEvent)
                 .build();
     }
+
+
+    public UserAnalyticsDTO getDashboardAnalytics(User user) {
+        Long userId = user.getUserId();
+        List<Long> eventIds =
+                eventUserRepository.findAssignedEventIds(userId);
+        long totalRegistrations =
+                registrationRepository.countByEvent_EventIdIn(eventIds);
+        long totalCheckIns =
+                registrationRepository.countByEvent_EventIdInAndCheckedInTrue(eventIds);
+        double overallCheckInRate =
+                totalRegistrations == 0 ? 0 :
+                        (totalCheckIns * 100.0) / totalRegistrations;
+        long totalScans =
+                checkpointLogRepository.countTotalScansForEvents(eventIds);
+        return UserAnalyticsDTO.builder()
+                .totalAssignedEvents(0)
+                .totalRegistrations(totalRegistrations)
+                .totalCheckIns(totalCheckIns)
+                .totalScans(totalScans)
+                .todayScans(0)
+                .overallCheckInRate(overallCheckInRate)
+                .eventPerformance(null)
+                .bestPerformingEvent(null)
+                .worstPerformingEvent(null)
+                .mostActiveEvent(null)
+                .build();
+    }
 }
